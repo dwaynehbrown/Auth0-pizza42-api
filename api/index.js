@@ -19,6 +19,10 @@ app.get('/api/item/:slug', (req, res) => {
   res.end(`Item: ${slug}`)
 })
 
+
+const cors = require('../conf/cors');
+app.use(cors);
+
 const authConfig = {
   "domain": "db-test.eu.auth0.com",
   "clientId": "sfszpobK3d1s4TljE5yB36SCIusSEbUb",
