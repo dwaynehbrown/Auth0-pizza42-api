@@ -1,5 +1,5 @@
 const app = require('express')()
-const { v4 } = require('uuid')
+const express = require('express');
 
 
 const jwt = require("express-jwt");
@@ -7,21 +7,10 @@ const jwksRsa = require("jwks-rsa");
 
 const axios = require("axios");
 
-app.get('/api', (req, res) => {
-  const path = `/api/item/${v4()}`
-  res.setHeader('Content-Type', 'text/html')
-  res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate')
-  res.end(`Hello! Go to item: <a href="${path}">${path}</a>`)
-})
-
-app.get('/api/item/:slug', (req, res) => {
-  const { slug } = req.params
-  res.end(`Item: ${slug}`)
-})
-
 
 const cors = require('../conf/cors');
 app.use(cors);
+app.use(express.json());
 
 const authConfig = {
   "domain": "db-test.eu.auth0.com",
@@ -81,6 +70,8 @@ app.post("/api/updateUser", checkJwt, (req, res) => {
 
   if (req.user.scope.indexOf('update:account') > -1) {
 
+    return res.send({ body: req.body, params: req.params, query: req.query, bodytrue : (req.body || false)})
+
     var request = require("request");
 
     var options = {
@@ -100,7 +91,7 @@ app.post("/api/updateUser", checkJwt, (req, res) => {
         method: 'PATCH',
         url: 'https://db-test.eu.auth0.com/api/v2/users/' + req.user.sub,
         headers: { 'content-type': 'application/json', "authorization": 'Bearer ' + access_token },
-        body: {"user_metadata": {"isTest": true }},
+        body: {"user_metadata": (req.body.order_history || [])},
         json: true
       };
 
