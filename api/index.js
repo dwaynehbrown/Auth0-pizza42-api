@@ -94,12 +94,14 @@ app.post("/api/updateUser", checkJwt, (req, res) => {
       if (error) throw new Error(error);
 
 
+      let access_token = (JSON.parse(body)).access_token;
 
       let updateOptions = {
-        method: 'POST',
+        method: 'PATCH',
         url: 'https://db-test.eu.auth0.com/api/v2/users/' + req.user.sub,
-        headers: { 'content-type': 'application/json', "Authorization": body.accessToken },
-        body: '{user_metadata: {isTest: true }}'
+        headers: { 'content-type': 'application/json', "authorization": 'Bearer ' + access_token },
+        body: {"user_metadata": {"isTest": true }},
+        json: true
       };
 
 
@@ -109,7 +111,7 @@ app.post("/api/updateUser", checkJwt, (req, res) => {
         res.send({
           update: updateResp,
           user: req.user,
-          acces: body
+          // acces: body
 
         });
 
