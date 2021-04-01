@@ -76,36 +76,47 @@ app.post("/api/order", checkJwt, (req, res) => {
 // create order
 app.post("/api/updateUser", checkJwt, (req, res) => {
 
+
+  // return res.send(req.user);
+
   if (req.user.scope.indexOf('update:account') > -1) {
 
- 
-      axios.post('https://db-test.eu.auth0.com//oauth/token', 
-      { "client_id": "8WJpcieAknIeViXj9nen6Rl3Hgxwd02v"
-      , "client_secret": "n-dTKYeNr3jqubT92B2b-AT6y-VbQ4oYmwaSinHEcV_TSUSwxUN_PuA2NT9pOUHP"
-      , "audience": 'https://db-test.eu.auth0.com/api/v2/'
-      , "grant_type": "client_credentials" }
-      , { 'content-type': 'application/json' }
-      )
-        .then((result, err) => {
+    var request = require("request");
 
-          if (err) return res.send({ err });
+    var options = {
+      method: 'POST',
+      url: 'https://db-test.eu.auth0.com/oauth/token',
+      headers: { 'content-type': 'application/json' },
+      body: '{"client_id":"8WJpcieAknIeViXj9nen6Rl3Hgxwd02v","client_secret":"n-dTKYeNr3jqubT92B2b-AT6y-VbQ4oYmwaSinHEcV_TSUSwxUN_PuA2NT9pOUHP","audience":"https://db-test.eu.auth0.com/api/v2/","grant_type":"client_credentials"}'
+    };
 
-          const token = result.accessToken;
-
-          axios.patch('https://db-test.eu.auth0.com/api/v2/users/' + req.user.sub,
-            {
-              user_metadata: {
-                isTest: true
-              }
-            },
-            { authorization: token, 'content-type': 'application/json' },
-          ).then(resp2 => {
-            res.send({ msg: 'updated user', token, resp: {response: resp.data}, resp2 : {response: resp2.data}});
-          })
-
-        })
+    request(options, function (error, response, body) {
+      if (error) throw new Error(error);
 
 
+
+      let updateOptions = {
+        method: 'POST',
+        url: 'https://db-test.eu.auth0.com/api/v2/users/' + req.user.sub,
+        headers: { 'content-type': 'application/json', "Authorization": body.accessToken },
+        body: '{user_metadata: {isTest: true }}'
+      };
+
+
+      request(updateOptions, function (error, response, updateResp) {
+        if (error) throw new Error(error);
+
+        res.send({
+          update: updateResp,
+          user: req.user,
+          acces: body
+
+        });
+
+      });
+
+
+    })
 
   }
 
