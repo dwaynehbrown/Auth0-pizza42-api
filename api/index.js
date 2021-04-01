@@ -12,6 +12,8 @@ const cors = require('../conf/cors');
 app.use(cors);
 app.use(express.json());
 
+
+
 const authConfig = {
   "domain": "db-test.eu.auth0.com",
   "clientId": "sfszpobK3d1s4TljE5yB36SCIusSEbUb",
@@ -70,8 +72,6 @@ app.post("/api/updateUser", checkJwt, (req, res) => {
 
   if (req.user.scope.indexOf('update:account') > -1) {
 
-    return res.send({ body: req.body, params: req.params, query: req.query, bodytrue : (req.body || false)})
-
     var request = require("request");
 
     var options = {
@@ -91,7 +91,7 @@ app.post("/api/updateUser", checkJwt, (req, res) => {
         method: 'PATCH',
         url: 'https://db-test.eu.auth0.com/api/v2/users/' + req.user.sub,
         headers: { 'content-type': 'application/json', "authorization": 'Bearer ' + access_token },
-        body: {"user_metadata": (req.body.order_history || [])},
+        body: { "user_metadata": { "order_history": req.body.order_history }},
         json: true
       };
 
